@@ -1,0 +1,89 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
+    font-size: 14px;
+}
+
+a {
+    cursor: pointer ;
+}
+
+.navbar-brand {
+    font-size: 2rem;
+}
+
+
+.control-label {
+    padding-bottom: 10px;
+    font-size: 2rem;
+}
+
+.form-group {
+    padding: 10px;
+    padding-left: 0;
+}
+
+.btn {
+    font-size: 2rem;
+}
+
+.form-control {
+    font-size: 2rem;
+}
+
+.fc {
+    font-size: 2rem;
+}
+
+.fc-toolbar-chunk {
+    /*padding: 4px;*/
+}
+
+
+
+#calendar {
+    max-width: 100%;
+    margin: 40px auto;
+}
+
+#login-form {
+    margin-top: 50px;
+
+}
+
+#new-entry-form {
+    margin-top: 50px;
+}
+
+@media (max-width: 500px) {
+    #login-form {
+        margin-top: 0;
+
+    }
+
+    #new-entry-form {
+        margin-top: 0;
+    }
+
+    .fc .fc-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .fc .fc-toolbar-title {
+        margin: 10px 0;
+    }
+
+    .fc table {
+        font-size: 0.8rem;
+    }
+
+    .btn {
+        font-size: 1rem;
+    }
+
+    .form-control {
+        font-size: 1rem;
+    }
+}

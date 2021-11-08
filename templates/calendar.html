@@ -1,0 +1,79 @@
+{% include 'header.html' %}
+
+<div class="container">
+	<div id='calendar'>
+		<script>
+            document.addEventListener("DOMContentLoaded", function () {
+                let calendarEl = document.getElementById('calendar');
+
+                let calendar = new FullCalendar.Calendar(calendarEl, {
+                    aspectRatio: 1.35,
+                    initialView: 'listMonth',
+                    selectable: true,
+                    editable: true,
+                    expandRows: true,
+                    timeZone: 'Europe/London',
+                    themeSystem: 'bootstrap',
+                    headerToolbar: {
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+                    },
+                    dayMaxEvents: true,
+
+                    events: [
+                        {% for event in events %}
+                            {
+                                id: '{{ event.id }}',
+                                title: '{{event.seizure_type}}',
+                                start: '{{event.date}}',
+                                textColor: '#000',
+                                extendedProps: {
+                                    decription: '{{ event.note }}',
+                                },
+                                {% if event.seizure_type == 'Strong' %}
+                                    backgroundColor: 'red',
+                                    textColor: 'red',
+                                {% elif event.seizure_type == 'Medium' %}
+                                    backgroundColor: 'orange',
+                                    textColor: 'orange',
+                                {% else %}
+                                    backgroundColor: 'yellow',
+                                    textColor: 'yellow',
+                                {% endif %}
+                            },
+                        {% endfor %}
+                    ],
+
+                    eventDidMount: function (info) {
+                        var description = info.event.extendedProps.decription;
+                        $(info.el).find('.fc-list-event-title').append("<br/>" + description);
+                    },
+                    eventTimeFormat: {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                    },
+
+                    eventClick: function (info) {
+                        if (confirm("Are you sure you want to delete it?")) {
+                            var event_id = info.event.id
+                            console.log(event_id)
+                            $.ajax({
+                                type: "POST",
+                                url: "{{ url_for('delete')}}",
+                                data: {'id': event_id},
+                            })
+                            calendar.getEventById(info.event.id).remove()
+                        }
+                    }
+                });
+
+                calendar.render();
+            });
+		</script>
+	</div>
+</div>
+
+
+{% include 'footer.html' %}

@@ -1,0 +1,16 @@
+{% include 'header.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+<!--New Entry Form-->
+
+<div class="container bg-light" id="new-entry-form">
+	<div class="row align-items-center justify-content-center">
+			<div class="col-lg-8 col-md-10 bg-light p-3">
+
+			{{ wtf.quick_form(form, novalidate=True, button_map={"submit": "primary"}) }}
+
+		</div>
+	</div>
+</div>
+
+{% include 'footer.html' %}
