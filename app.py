@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from forms import NewEntry, LogIn, NewUser
 from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
 from functools import wraps
+from dash_application import create_dash_application
 
 
 
@@ -20,6 +21,9 @@ db = SQLAlchemy(app)
 # Login Manager
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+# Dash App
+create_dash_application(app)
 
 
 @login_manager.user_loader
@@ -146,9 +150,9 @@ def delete():
 
 # TODO Make reports
 
-@app.route('/reports')
-def show_reports():
-    return render_template('reports.html')
+@app.route('/dashboard')
+def dashboard():
+    return redirect(url_for('dashboard'))
 
 
 @app.route('/logout')
