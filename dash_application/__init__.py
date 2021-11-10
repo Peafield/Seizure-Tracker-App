@@ -8,35 +8,52 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 from datetime import date, datetime
 
+# Get Today's Date
 current_date = date.today()
 
+# Create df from seizure.db
 engine = sqlalchemy.create_engine('sqlite:///seizure.db')
 df = pd.read_sql("Seizures", engine)
-
 df['date'] = pd.to_datetime(df['date'])
 df['date'] = df['date'].dt.date
-
-# Frequency Bar Chart
-frequency_count = df.groupby(['date'])['seizure_type'].value_counts().to_frame(name='frequency').reset_index()
-
-# Pie Chart
-# seizure_type_count = df.seizure_type.value_counts()
-
-print(frequency_count)
-
-# pie_fig = px.pie(labels=seizure_type_count.index,
-#                  values=seizure_type_count.values,
-#                  title="Percentage of Seizures by Type",
-#                  names=seizure_type_count.index,
-#                  hole=0.4,
-#                  )
-#
-# pie_fig.update_traces(textposition='inside', textfont_size=15, textinfo='percent')
+frequency_count = df.groupby(['date'])['seizure_type'].value_counts().to_frame(name='frequency').reset_index
 
 
-# pie_fig.show()
 
+
+# Create the dash app to be render in flask
 def create_dash_application(flask_app):
+
+    # Styles
+    DATEPICKER_STYLE = {
+        'padding': "10px",
+        'margin': "10px",
+        'margin-left': "50px",
+    }
+
+    FIGS = {
+        'border-radius': '25px',
+        'border': '2px solid #ccc',
+        'padding': "10px",
+        'margin': "10px",
+        'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+
+    }
+
+    TOTALS = {
+        'border-radius': '25px',
+        'border': '2px solid #ccc',
+        'padding': "10px",
+        'padding-top': "20px",
+        'margin': "10px",
+        'margin-top': "20px",
+        'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
+        'justify-content': 'center',
+        'align-items': 'center',
+
+    }
+
+    #Components
     dash_app = dash.Dash(
         server=flask_app, name='Dashboard', url_base_pathname='/dashboard/',
         external_stylesheets=[dbc.themes.BOOTSTRAP],
@@ -44,15 +61,34 @@ def create_dash_application(flask_app):
                     'content': 'width=device-width, initial-scale=1.0'}]
     )
 
+    navbar = dbc.NavbarSimple(
+        children=[
+            dbc.NavItem(dbc.NavLink("New Entry", href="http://127.0.0.1:5000/new-entry")),
+            dbc.NavItem(dbc.NavLink("Calendar", href="http://127.0.0.1:5000/calendar")),
+        ],
+        brand="Dashboard",
+        color="primary",
+        dark=True,
+    )
+
+    totals = html.Div(
+        [
+            dbc.Alert([html.H1("Total Number of Seizures Per Period: ")], color="light", id="totals_div")
+        ],
+
+    )
+
+    download = html.Div(
+        [
+            dbc.Alert([html.H1("EXPORT")], color="light")
+        ],
+
+    )
+
     # App Layout: Bootstrap
 
     dash_app.layout = dbc.Container([
-        dbc.Row([
-            dbc.Col(html.H1("Seizure Report Dashboard",
-                            className="text-center text-primary mb-4"),
-                    width=12),
-        ]),
-
+        dbc.Row([navbar]),
         dbc.Row([
             dbc.Col([
                 dcc.DatePickerRange(
@@ -62,20 +98,28 @@ def create_dash_application(flask_app):
                     max_date_allowed=date(2100, 1, 1),
                     initial_visible_month=current_date,
                 ),
-                html.Div(id='output-container-date-picker-range'),
-
-                dcc.Graph(id="frequency_fig")
-                # Can only have a maximum of 12 cols including offsets etc.
-                # Order determines int the order of rendered components
-
-            ], width={'size': 5, 'offset': 1, 'order': 1}),
-
-        ], justify='around'),
+            ], style=DATEPICKER_STYLE, width={'size': 3})
+        ], justify='start'),
 
         dbc.Row([
+
+            dbc.Col([
+                dcc.Graph(id="frequency_fig")
+            ], style=FIGS, xs=12, sm=12, md=12, lg=5, xl=5),
+
+
             dbc.Col([
                 dcc.Graph(id="pie_fig"),
-            ], width={'size': 5, 'offset': 0, 'order': 2})
+            ], style=FIGS, xs=12, sm=12, md=12, lg=5, xl=5)
+
+        ], justify='around'),
+        dbc.Row([
+            dbc.Col([
+                totals
+            ], style=TOTALS, xs=12, sm=12, md=12, lg=5, xl=5),
+            dbc.Col([
+                download
+            ], style=TOTALS, xs=12, sm=12, md=12, lg=5, xl=5),
         ], justify='around'),
     ])
 
@@ -92,10 +136,10 @@ def create_dash_application(flask_app):
                        x='date',
                        y='frequency',
                        color='seizure_type',
-                       title="Frequency of Seizure's per day")
+                       title="Frequency of Seizures")
 
         f_fig.update_layout(xaxis_title='Days of the Month',
-                                    yaxis_title='Number of seizures')
+                            yaxis_title='Number of seizures')
         return f_fig
 
     @dash_app.callback(
@@ -110,15 +154,38 @@ def create_dash_application(flask_app):
         seizure_type_count = df.seizure_type.value_counts()
 
         p_fig = px.pie(df,
-                labels=seizure_type_count.index,
-                 values=seizure_type_count.values,
-                 title="Percentage of Seizures by Type",
-                 names=seizure_type_count.index,
-                 hole=0.4,
-                 )
+                       labels=seizure_type_count.index,
+                       values=seizure_type_count.values,
+                       title="Percentage of Seizures by Type",
+                       names=seizure_type_count.index,
+                       hole=0.4,
+                       )
 
         p_fig.update_traces(textposition='inside', textfont_size=15, textinfo='percent')
 
         return p_fig
+
+    # @dash_app.callback(
+    #     Output('totals_div', 'chilren'),
+    #     [Input('my-date-picker-range', 'start_date'),
+    #      Input('my-date-picker-range', 'end_date')]
+    # )
+    # def totals_update(start_date, end_date):
+    #     df = frequency_count
+    #     df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
+    #     df = df[(df['date'] > start_date) & (df['date'] < end_date)]
+    #     seizure_type_count = df.seizure_type.sum()
+    #
+    #     p_fig = px.pie(df,
+    #                    labels=seizure_type_count.index,
+    #                    values=seizure_type_count.values,
+    #                    title="Percentage of Seizures by Type",
+    #                    names=seizure_type_count.index,
+    #                    hole=0.4,
+    #                    )
+    #
+    #     p_fig.update_traces(textposition='inside', textfont_size=15, textinfo='percent')
+    #
+    #     return p_fig
 
     return dash_app
