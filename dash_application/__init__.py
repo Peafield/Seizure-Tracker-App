@@ -16,8 +16,8 @@ engine = sqlalchemy.create_engine('sqlite:///seizure.db')
 df = pd.read_sql("Seizures", engine)
 df['date'] = pd.to_datetime(df['date'])
 df['date'] = df['date'].dt.date
-frequency_count = df.groupby(['date'])['seizure_type'].value_counts().to_frame(name='frequency').reset_index
-
+frequency_count = df.groupby(['date'])['seizure_type'].value_counts().to_frame(name='frequency').reset_index()
+# print(frequency_count.frequency.sum())
 
 
 
@@ -73,9 +73,12 @@ def create_dash_application(flask_app):
 
     totals = html.Div(
         [
-            dbc.Alert([html.H1("Total Number of Seizures Per Period: ")], color="light", id="totals_div")
+            dbc.Alert([
+                html.H1("Number of Seizures: "),
+                html.H1(id='totals')
+            ],
+                color="light"),
         ],
-
     )
 
     download = html.Div(
@@ -132,6 +135,7 @@ def create_dash_application(flask_app):
         df = frequency_count
         df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
         df = df[(df['date'] > start_date) & (df['date'] < end_date)]
+
         f_fig = px.bar(df,
                        x='date',
                        y='frequency',
@@ -165,27 +169,16 @@ def create_dash_application(flask_app):
 
         return p_fig
 
-    # @dash_app.callback(
-    #     Output('totals_div', 'chilren'),
-    #     [Input('my-date-picker-range', 'start_date'),
-    #      Input('my-date-picker-range', 'end_date')]
-    # )
-    # def totals_update(start_date, end_date):
-    #     df = frequency_count
-    #     df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
-    #     df = df[(df['date'] > start_date) & (df['date'] < end_date)]
-    #     seizure_type_count = df.seizure_type.sum()
-    #
-    #     p_fig = px.pie(df,
-    #                    labels=seizure_type_count.index,
-    #                    values=seizure_type_count.values,
-    #                    title="Percentage of Seizures by Type",
-    #                    names=seizure_type_count.index,
-    #                    hole=0.4,
-    #                    )
-    #
-    #     p_fig.update_traces(textposition='inside', textfont_size=15, textinfo='percent')
-    #
-    #     return p_fig
+    @dash_app.callback(
+        Output(component_id='totals', component_property='children'),
+        [Input('my-date-picker-range', 'start_date'),
+         Input('my-date-picker-range', 'end_date')]
+    )
+    def total_update(start_date, end_date):
+        df = frequency_count
+        df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
+        df = df[(df['date'] > start_date) & (df['date'] < end_date)]
+        total_number = df.frequency.sum()
+        return f'{total_number}'
 
     return dash_app
