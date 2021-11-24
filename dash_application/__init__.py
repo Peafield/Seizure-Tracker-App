@@ -47,6 +47,7 @@ def create_dash_application(flask_app):
         'padding-top': "20px",
         'margin': "10px",
         'margin-top': "20px",
+        'margin-bottom': "20px",
         'box-shadow': '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
         'justify-content': 'center',
         'align-items': 'center',
@@ -105,6 +106,12 @@ def create_dash_application(flask_app):
         ], justify='start'),
 
         dbc.Row([
+            dbc.Col([
+                totals
+            ], style=TOTALS, xs=12, sm=12, md=12, lg=5, xl=5),
+        ], justify='center'),
+
+        dbc.Row([
 
             dbc.Col([
                 dcc.Graph(id="frequency_fig")
@@ -116,14 +123,8 @@ def create_dash_application(flask_app):
             ], style=FIGS, xs=12, sm=12, md=12, lg=5, xl=5)
 
         ], justify='around'),
-        dbc.Row([
-            dbc.Col([
-                totals
-            ], style=TOTALS, xs=12, sm=12, md=12, lg=5, xl=5),
-            dbc.Col([
-                download
-            ], style=TOTALS, xs=12, sm=12, md=12, lg=5, xl=5),
-        ], justify='around'),
+
+
     ])
 
     @dash_app.callback(
