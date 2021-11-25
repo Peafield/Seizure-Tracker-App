@@ -64,8 +64,8 @@ def create_dash_application(flask_app):
 
     navbar = dbc.NavbarSimple(
         children=[
-            dbc.NavItem(dbc.NavLink("New Entry", href="http://127.0.0.1:5000/new-entry")),
-            dbc.NavItem(dbc.NavLink("Calendar", href="http://127.0.0.1:5000/calendar")),
+            dbc.NavItem(dbc.NavLink("New Entry", href="https://matthewseizuretrackingapp.herokuapp.com/new-entry")),
+            dbc.NavItem(dbc.NavLink("Calendar", href="https://matthewseizuretrackingapp.herokuapp.com/calendar")),
         ],
         brand="Dashboard",
         color="primary",
