@@ -135,7 +135,7 @@ def create_dash_application(flask_app):
     def f_figupdate(start_date, end_date):
         df = frequency_count
         df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
-        df = df[(df['date'] > start_date) & (df['date'] < end_date)]
+        df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
 
         f_fig = px.bar(df,
                        x='date',
@@ -155,7 +155,7 @@ def create_dash_application(flask_app):
     def p_figupdate(start_date, end_date):
         df = frequency_count
         df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
-        df = df[(df['date'] > start_date) & (df['date'] < end_date)]
+        df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
         seizure_type_count = df.seizure_type.value_counts()
 
         p_fig = px.pie(df,
@@ -178,7 +178,7 @@ def create_dash_application(flask_app):
     def total_update(start_date, end_date):
         df = frequency_count
         df['date'] = pd.to_datetime(df['date'], format='%Y-%m-%d')
-        df = df[(df['date'] > start_date) & (df['date'] < end_date)]
+        df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
         total_number = df.frequency.sum()
         return f'{total_number}'
 
